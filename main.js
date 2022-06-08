@@ -71,7 +71,7 @@ app.use(function (req, res, next) {
     next();
   }
 });
-//#endregion
+//#endregion   localhost:3000/users/favorites
 
 // ----> For cheking that our server is alive
 app.get("/alive", (req, res) => res.send("I'm alive"));
