@@ -8,6 +8,7 @@ router.get("/", (req, res) => res.send("im here"));
 /**
  * This path returns a full details of a recipe by its id
  */
+//localhost:3000/recipes/170000
 router.get("/:recipeId", async (req, res, next) => {
   try {
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
