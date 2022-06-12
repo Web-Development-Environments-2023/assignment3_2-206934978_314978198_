@@ -9,7 +9,7 @@ const recipe_utils = require("./utils/recipes_utils");
  */
 router.use(async function (req, res, next) {
   if (req.session && req.session.user_name) {
-    DButils.execQuery("SELECT user_name FROM users").then((users) => {
+    DButils.execQuery("SELECT username FROM mydb.users").then((users) => {
       if (users.find((x) => x.user_name === req.session.user_name)) {
         req.user_name = req.session.user_name;
         next();
