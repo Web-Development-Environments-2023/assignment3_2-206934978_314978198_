@@ -19,6 +19,38 @@ router.get("/:recipeId", async (req, res, next) => {
 });
 
 
+
+/**
+ * This path returns a full details of a random recipe
+ */
+//localhost:3000/recipes/random
+router.get("/:random", async (req, res, next) => {
+  try {
+    const randomRecipeId = await recipes_utils.getRandomRecipe();
+    const recipe = await recipes_utils.getRecipeDetails(randomRecipeId);
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+/**
+ * This path returns a full details of a random recipe
+ */
+//localhost:3000/recipes/complexSearch
+router.get("/:complexSearch", async (req, res, next) => {
+  try {
+    const complexRecipeId = await recipes_utils.getComplexSearch(req.params.complexSearch);
+    const recipe = await recipes_utils.getRecipeDetails(complexRecipeId);
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
 /**
  * This path returns a full details of a recipe by its name
  */

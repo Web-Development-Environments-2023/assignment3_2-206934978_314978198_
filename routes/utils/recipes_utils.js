@@ -43,3 +43,25 @@ exports.getRecipeDetails = getRecipeDetails;
 
 
 
+async function getSearchRecipes(recipe_id) {
+    return await axios.get(`${api_domain}/${recipe_id}/information`, {
+        params: {
+            includeNutrition: false,
+            apiKey: process.env.spooncular_apiKey
+        }
+    });
+}
+
+
+
+async function getRandomRecipe() {
+    /* to generate random id */
+    return await axios.get(`${api_domain}/${recipe_id}/information`, {
+        params: {
+            includeNutrition: false,
+            apiKey: process.env.spooncular_apiKey
+        }
+    });
+}
+
+
