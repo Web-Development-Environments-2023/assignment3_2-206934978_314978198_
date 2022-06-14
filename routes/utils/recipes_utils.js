@@ -128,13 +128,13 @@ catch
 }
 
 
-async function getSearchRecipes(req, query, top, cuisine, diet, intolerances) {
+async function getSearchRecipes(req, query, number, cuisine, diet, intolerances) {
     let res = await axios.get(`${api_domain}/complexSearch`,
     {
         params: {
             apiKey: process.env.spooncular_apiKey,
             query: query, 
-            top: top,
+            number: number,
             cuisine: cuisine, 
             diet: diet,
             intolerances: intolerances,

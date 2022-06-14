@@ -37,17 +37,17 @@ router.get("/random", async (req, res, next) => {
 
 /**
  * This path gets a query and returns few recipies which are ansewring it
- * top - int (5,10,15)
+ * number - int (5,10,15)
  */
  router.get("/search", async (req, res, next) => {
   try {
     const query = req.query.query;
-    const top = req.query.top;
+    const number = req.query.number;
     const cuisine = req.query.cuisine;
     const diet = req.query.diet;
     const intolerances = req.query.intolerances;
 
-    const recipes = await recipes_utils.getSearchRecipes(req, query, top, cuisine, diet, intolerances);
+    const recipes = await recipes_utils.getSearchRecipes(req, query, number, cuisine, diet, intolerances);
     res.send(recipes);
   } catch (error) {
     next(error);
