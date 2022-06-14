@@ -1,5 +1,6 @@
 const axios = require("axios");
 const api_domain = "https://api.spoonacular.com/recipes";
+const DButils = require("./DButils");
 
 
 
@@ -35,6 +36,15 @@ async function getRecipeDetails(recipe_id) {
         glutenFree: glutenFree,
         
     }
+
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var yyyy = today.getFullYear();
+    today = mm + '/' + dd + '/' + yyyy;
+
+    await DButils.execQuery(`insert into watched values (rec_id='${recipe_id}', user_name=${req,session.username}), date=${today});
+
 
     // If there is a connected user - checks if he has watched/saved to favorite the recipe
     if (!(req.session && req.session.username)) {
