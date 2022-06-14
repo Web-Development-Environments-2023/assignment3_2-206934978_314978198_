@@ -61,5 +61,6 @@ async function getMyRecipes(user_name){
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.createRecipes = createRecipes;
+exports.getMyRecipes = getMyRecipes;
 
 
