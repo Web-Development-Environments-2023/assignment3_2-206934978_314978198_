@@ -9,7 +9,57 @@ async function getFavoriteRecipes(user_name){
     return recipes_id;
 }
 
+async function createRecipes(recipe_name, pic, description, time_required, popularity, vegan, vegeterian, gluten, ingredients, instruction, num_of_meals, user_name){
+    let id = await DButils.execQuery(`SELECT COUNT(*) as number FROM regularrecipes`);
+    id = id[0].number + 1;
+    const recipes_id = await DButils.execQuery(`insert into regularrecipes values (id=${id}, recipe_name='${recipe_name}', recpic='${pic}', recdescription='${description}', timerequired=${time_required}, popularity='${popularity}, vegan='${vegan}', vegetarian='${vegeterian}', ingredientlist='${ingredients}', instructions='${instruction}', nu_of_meals='${num_of_meals}', user_name='${user_name}')`);
+}
+
+async function getMyRecipes(user_name){
+    let results = [];
+    let recipes_info = await DButils.execQuery(`SELECT * FROM regularrecipes where username='${user_name}' `)
+
+    if (recipes_info == []){
+        return results;
+    }
+    
+    const watched_recipes = await DButils.execQuery(`SELECT recipe_id FROM watchedrecipes where username='${user_name}' `);
+    const favorite_recipes = await DButils.execQuery(`SELECT recipe_id FROM myfavoriterecipes where username='${user_name}' `);
+
+    for (let recipe of recipes_info){
+        let watched_rec = False;
+        
+        if (watched_recipes.find((x) => x.recipe_id === recipe['id'])){
+            watched_rec = True;
+        }
+        
+        let favorite_rec = False;
+        
+        if (favorite_recipes.find((x) => x.recipe_id === recipe['id'])){
+            favorite_rec = True;
+        }   
+
+        let recipe_dict = {
+            name: recipe['recipe_name'],
+            pic: recipe['recpic'],
+            popularity: recipe['popularity'],
+            vegan: recipe['vegan'],
+            vegeterian: recipe['vegeterian'],
+            gluten: recipe['gluten'],
+            time_required: recipe['time_required'],
+            watched: watched_rec,
+            favorite: favorite_rec   
+        }
+
+        results.push(recipe_dict);
+    }
+    return results;
+}
+
+
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
+exports.createRecipes = createRecipes;
+
 
