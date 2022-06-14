@@ -21,55 +21,43 @@ router.get("/:recipeId", async (req, res, next) => {
 
 
 /**
- * This path returns a full details of a random recipe
+ * This path returns a full details of a 3 random recipe
  */
 //localhost:3000/recipes/random
-router.get("/:random", async (req, res, next) => {
+router.get("/random", async (req, res, next) => {
   try {
-    const randomRecipeId = await recipes_utils.getRandomRecipe();
-    const recipe = await recipes_utils.getRecipeDetails(randomRecipeId);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
-
-
-// /**
-//  * This path returns a full details of a random recipe
-//  */
-// //localhost:3000/recipes/complexSearch
-// router.get("/:complexSearch", async (req, res, next) => {
-//   try {
-//     const complexRecipeId = await recipes_utils.getComplexSearch(req.params.complexSearch);
-//     const recipe = await recipes_utils.getRecipeDetails(complexRecipeId);
-//     res.send(recipe);
-//   } catch (error) {
-//     next(error);
-//   }
-// });
-
-
-/**
- * This path gets a query and returns few recipies which are ansewrint it
- */
- router.get("/search", async (req, res, next) => {
-  try {
-
-    const query = req.query.query;
-    const number = req.query.number;
-    const cuisine = req.query.cuisine;
-    const diet = req.query.diet;
-    const intolerances = req.query.intolerances;
-    await users_utils.addQuerySearchedByUser(req.session, query);
-    const recipes = await recipes_utils.searchRecipes(req, query, number, cuisine, diet, intolerances);
+    const recipes = await recipes_utils.getRandomRecipes();
     res.send(recipes);
   } catch (error) {
     next(error);
   }
 });
 
+
+
+/**
+ * This path gets a query and returns few recipies which are ansewring it
+ * top - int (5,10,15)
+ */
+ router.get("/search", async (req, res, next) => {
+  try {
+    const query = req.query.query;
+    const top = req.query.top;
+    const cuisine = req.query.cuisine;
+    const diet = req.query.diet;
+    const intolerances = req.query.intolerances;
+
+    const recipes = await recipes_utils.getSearchRecipes(req, query, top, cuisine, diet, intolerances);
+    res.send(recipes);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+
+
+/************************************** */
 
 /**
  * This path returns a full details of a recipe by its name
@@ -85,46 +73,6 @@ router.get("/:recipeName", async (req, res, next) => {
 });
 
 
-/**
- * This path returns full details of the 5 top recipes by its popularity
- */
-//localhost:3000/recipes/top5
-router.get("/:recipeTop5", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeTop5);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
-
-/**
- * This path returns full details of the 10 top recipes by its popularity
- */
-//localhost:3000/recipes/top10
-router.get("/:recipeTop10", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeTop10);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
-
-/**
- * This path returns full details of the 15 top recipes by its popularity
- */
-//localhost:3000/recipes/top10
-router.get("/:recipeTop15", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeTop15);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
 
 
 

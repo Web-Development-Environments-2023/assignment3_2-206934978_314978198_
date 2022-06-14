@@ -49,7 +49,7 @@ const corsConfig = {
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
 
-var port = process.env.PORT || "3000"; //local=3000 remote=80
+var port = process.env.PORT || "80"; //local=3000 remote=80
 //#endregion
 const user = require("./routes/user");
 const recipes = require("./routes/recipes");
@@ -58,11 +58,11 @@ const auth = require("./routes/auth");
 
 //#region cookie middleware
 app.use(function (req, res, next) {
-  if (req.session && req.session.user_id) {
-    DButils.execQuery("SELECT user_id FROM users")
+  if (req.session && req.session.username) {
+    DButils.execQuery("SELECT username FROM mydb.users")
       .then((users) => {
-        if (users.find((x) => x.user_id === req.session.user_id)) {
-          req.user_id = req.session.user_id;
+        if (users.find((x) => x.username === req.session.username)) {
+          req.username = req.session.username;
         }
         next();
       })
@@ -72,6 +72,7 @@ app.use(function (req, res, next) {
   }
 });
 //#endregion   localhost:3000/users/favorites
+
 
 // ----> For cheking that our server is alive
 app.get("/alive", (req, res) => res.send("I'm alive"));

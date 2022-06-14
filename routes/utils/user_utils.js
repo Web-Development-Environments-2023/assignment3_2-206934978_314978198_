@@ -10,6 +10,6 @@ async function getFavoriteRecipes(user_name){
 }
 
 
-
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
+
