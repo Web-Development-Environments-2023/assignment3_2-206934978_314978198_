@@ -36,15 +36,35 @@ router.get("/:random", async (req, res, next) => {
 
 
 
+// /**
+//  * This path returns a full details of a random recipe
+//  */
+// //localhost:3000/recipes/complexSearch
+// router.get("/:complexSearch", async (req, res, next) => {
+//   try {
+//     const complexRecipeId = await recipes_utils.getComplexSearch(req.params.complexSearch);
+//     const recipe = await recipes_utils.getRecipeDetails(complexRecipeId);
+//     res.send(recipe);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+
 /**
- * This path returns a full details of a random recipe
+ * This path gets a query and returns few recipies which are ansewrint it
  */
-//localhost:3000/recipes/complexSearch
-router.get("/:complexSearch", async (req, res, next) => {
+ router.get("/search", async (req, res, next) => {
   try {
-    const complexRecipeId = await recipes_utils.getComplexSearch(req.params.complexSearch);
-    const recipe = await recipes_utils.getRecipeDetails(complexRecipeId);
-    res.send(recipe);
+
+    const query = req.query.query;
+    const number = req.query.number;
+    const cuisine = req.query.cuisine;
+    const diet = req.query.diet;
+    const intolerances = req.query.intolerances;
+    await users_utils.addQuerySearchedByUser(req.session, query);
+    const recipes = await recipes_utils.searchRecipes(req, query, number, cuisine, diet, intolerances);
+    res.send(recipes);
   } catch (error) {
     next(error);
   }
