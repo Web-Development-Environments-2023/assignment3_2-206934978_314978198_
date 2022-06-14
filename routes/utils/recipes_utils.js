@@ -1,4 +1,5 @@
 const axios = require("axios");
+const { get } = require("../recipes");
 const api_domain = "https://api.spoonacular.com/recipes";
 const DButils = require("./DButils");
 
@@ -8,8 +9,6 @@ const DButils = require("./DButils");
  * Get recipes list from spooncular response and extract the relevant recipe data for preview
  * @param {*} recipes_info 
  */
-
-
 async function getRecipeInformation(recipe_id) {
     return await axios.get(`${api_domain}/${recipe_id}/information`, {
         params: {
@@ -34,39 +33,50 @@ async function getRecipeDetails(recipe_id) {
         vegan: vegan,
         vegetarian: vegetarian,
         glutenFree: glutenFree,
-        
     }
 
-    var today = new Date();
-    var dd = String(today.getDate()).padStart(2, '0');
-    var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-    var yyyy = today.getFullYear();
-    today = mm + '/' + dd + '/' + yyyy;
-
-    await DButils.execQuery(`insert into watched values (rec_id='${recipe_id}', user_name=${req,session.username}), date=${today});
-
-
+    
     // If there is a connected user - checks if he has watched/saved to favorite the recipe
     if (!(req.session && req.session.username)) {
         previewDictionary['watched'] = false;
         previewDictionary['favorite'] = false;
     }
-    else {
-        const users = await DButils.execQuery("SELECT username FROM users")
+    else {        
+        const users = await DButils.execQuery("SELECT username FROM users");     
+
         if (users.find((x) => x.username === req.session.username)) 
-        {
+        {            
             const isSavedToMyfavorites = await user_utils.isFavorite(req.session.username, username);
-            if (is_saved_to_favorites)
+            if (isSavedToMyfavorites)
                 previewDictionary['favorite'] = true;
             else
                 previewDictionary['favorite'] = false;
 
             // Checks if the recipe has been watched by the user
-            const isWatched = await user_utils.isWatched(req.session.username, username);
-            if (isWatched)
+            const isWatched = await user_utils.isWatched(recipe_id, username);
+            if (isWatched){
                 previewDictionary['watched'] = true;
-            else
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                var yyyy = today.getFullYear();
+                today = mm + '/' + dd + '/' + yyyy;
+                
+                await DButils.execQuery(`update watched set (date=${today}) where (rec_id=${recipe_id}, user_name='${req,session.username}')`);
+            }
+                
+            else {
                 previewDictionary['watched'] = false;
+
+                var today = new Date();
+                var dd = String(today.getDate()).padStart(2, '0');
+                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+                var yyyy = today.getFullYear();
+                today = mm + '/' + dd + '/' + yyyy;
+
+                await DButils.execQuery(`insert into watched values (rec_id=${recipe_id}, user_name='${req,session.username}', date=${today})`);
+            }
+                
         }
     }
 
@@ -88,52 +98,52 @@ async function getPreviewRecipes(req, arrRecipesIds)
                 apiKey: process.env.spooncular_apiKey
             }
         })
-    //extract the  preview
-    for (let prevRecipe of recipesList.data)
-    {
-        let {id, image, title, preparationMinutes, aggregateLikes, vegan, vegetarian, glutenFree} = prevRecipe
-        let previewDictionary =  {
-            image: image,
-            title: title,
-            readyInMinutes: preparationMinutes,
-            popularity: aggregateLikes,
-            vegan: vegan,
-            vegetarian: vegetarian,
-            glutenFree: glutenFree,
-        }
-
-        if (!(req.session && req.session.username)) {
-            previewDictionary['watched'] = false;
-            previewDictionary['favorite'] = false;
-        }
-        else {
-          const users = await DButils.execQuery("SELECT username FROM users")
-            if (users.find((x) => x.username === req.session.username)) 
-            {
-                //check if this user saved this recipe
-                const isSavedToMyfavorites = await user_utils.isFavorite(req.session.username, username);
-                if (isSavedToMyfavorites) 
-                    previewDictionary['favorite'] = true;
-                else
-                    previewDictionary['favorite'] = false;
-
-                //check if this user has watched the recipe
-                const isWatched = await user_utils.isWatched(req.session.username, username);
-                if (isWatched)
-                    previewDictionary['watched'] = true;
-                else
-                    previewDictionary['watched'] = false;    
+        //extract the  preview
+        for (let prevRecipe of recipesList.data)
+        {
+            let {id, image, title, preparationMinutes, aggregateLikes, vegan, vegetarian, glutenFree} = prevRecipe
+            let previewDictionary =  {
+                image: image,
+                title: title,
+                readyInMinutes: preparationMinutes,
+                popularity: aggregateLikes,
+                vegan: vegan,
+                vegetarian: vegetarian,
+                glutenFree: glutenFree,
             }
-        // Adds the preview dictionnary to the result array
-        res.push(preview_dict)
+
+            if (!(req.session && req.session.username)) {
+                previewDictionary['watched'] = false;
+                previewDictionary['favorite'] = false;
+            }
+            else {
+            const users = await DButils.execQuery("SELECT username FROM users")
+                if (users.find((x) => x.username === req.session.username)) 
+                {
+                    //check if this user saved this recipe
+                    const isSavedToMyfavorites = await user_utils.isFavorite(req.session.username, username);
+                    if (isSavedToMyfavorites) 
+                        previewDictionary['favorite'] = true;
+                    else
+                        previewDictionary['favorite'] = false;
+
+                    //check if this user has watched the recipe
+                    const isWatched = await user_utils.isWatched(req.session.username, username);
+                    if (isWatched)
+                        previewDictionary['watched'] = true;
+                    else
+                        previewDictionary['watched'] = false;    
+                }
+            // Adds the preview dictionnary to the result array
+            res.push(preview_dict)
+            }
         }
+        return res
     }
-    return res
-}
-catch
-{
-    console.log("err");
-}
+    catch
+    {
+        console.log("err");
+    }
 
 }
 
@@ -187,8 +197,14 @@ async function getRandomRecipes() {
     return threeRecipes.data
 }   
 
+async function getLastThreeRecipes(user_name){
+    const recipes = await DButils.execQuery("SELECT rec_id FROM mydb.watched WHERE user_name='${user_name}' ORDER BY date desc limit 3");
+    return recipes
+}
 
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getSearchRecipes = getSearchRecipes;
 exports.getRandomRecipes = getRandomRecipes;
+exports.getLastThreeRecipes = getLastThreeRecipes;
+exports.getPreviewRecipes = getPreviewRecipes;

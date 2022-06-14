@@ -54,7 +54,7 @@ router.get('/favorites', async (req,res,next) => {
         //Extracts into an array
         recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
         
-        const results = await recipe_utils.getRecipesPreview(recipes_id_array);
+        const results = await recipe_utils.getPreviewRecipes(recipes_id_array);
         res.status(200).send(results);
       }      
     }
@@ -107,6 +107,26 @@ router.post('/myRecipies', async(req, res, next) =>{
     next(error);
   }
 
+});
+
+
+/**
+ * This path returns the saved family recipes of the logged-in user
+ */
+ router.get('/family', async (req,res,next) => {
+  try {
+    const user_name = req.session.user_id;
+    const recipes_id = await user_utils.getMyFamilyRecipes(user_name);
+
+    let arrRecipesIds = [];
+    //arr of recipes ids
+    recipes_id.map((element) => arrRecipesIds.push(element.recipe_id)); 
+
+    const results = await recipe_utils.getRecipesPreview(arrRecipesIds);
+    res.status(200).send(results);
+  } catch(error){
+    next(error); 
+  }
 });
 
 module.exports = router;

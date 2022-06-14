@@ -15,6 +15,15 @@ async function createRecipes(recipe_name, pic, description, time_required, popul
     const recipes_id = await DButils.execQuery(`insert into regularrecipes values (id=${id}, recipe_name='${recipe_name}', recpic='${pic}', recdescription='${description}', timerequired=${time_required}, popularity='${popularity}, vegan='${vegan}', vegetarian='${vegeterian}', ingredientlist='${ingredients}', instructions='${instruction}', nu_of_meals='${num_of_meals}', user_name='${user_name}')`);
 }
 
+async function isWatched(recipe_id, user_name){
+    const count = await DButils.watched(`SELECT COUNT(*) WHERE (rec_id=${recipe_id}, user_name='${user_name})`);
+
+    if (count == 0)
+        return False;
+    else
+        return True;
+}
+
 async function getMyRecipes(user_name){
     let results = [];
     let recipes_info = await DButils.execQuery(`SELECT * FROM regularrecipes where username='${user_name}' `)
@@ -57,10 +66,22 @@ async function getMyRecipes(user_name){
 }
 
 
+/*
+ * returns the all recipes ids of my family recipes
+*/
+async function getMyFamilyRecipes(user_name){
+    const recipesIds = await DButils.execQuery(`SELECT * from myfamilyrecipes where user_name='${user_name}'`);
+    return recipesIds;
+}
+
+
+
+
 
 exports.markAsFavorite = markAsFavorite;
 exports.getFavoriteRecipes = getFavoriteRecipes;
 exports.createRecipes = createRecipes;
 exports.getMyRecipes = getMyRecipes;
-
+exports.isWatched = isWatched;
+exports.getMyFamilyRecipes = getMyFamilyRecipes;
 
