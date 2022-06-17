@@ -6,21 +6,6 @@ router.get("/", (req, res) => res.send("im here"));
 
 
 /**
- * This path returns a full details of a recipe by its id
- */
-//localhost:3000/recipes/170000
-router.get("/:recipeId", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
-
-
-/**
  * This path returns a full details of a 3 random recipe
  */
 //localhost:3000/recipes/random
@@ -32,6 +17,14 @@ router.get("/random", async (req, res, next) => {
     next(error);
   }
 });
+
+
+
+
+
+
+
+
 
 
 
@@ -55,17 +48,41 @@ router.get("/random", async (req, res, next) => {
 });
 
 
+/**
+ * This path returns a full details of the 3 latest recipes
+ */
+//localhost:3000/recipes/170000
+router.get("/watched", async (req, res, next) => {
+  try {
+    const recipes = await recipes_utils.getLastThreeRecipes(req.session.user_name);
+    res.send(recipes);
+  } catch (error) {
+    next(error);
+  }
+});
 
 
-/************************************** */
 
 /**
  * This path returns a full details of a recipe by its name
  */
-//localhost:3000/recipes/chocolata
-router.get("/:recipeName", async (req, res, next) => {
+// localhost:3000/recipes/chocolata
+// router.get("/:recipeName", async (req, res, next) => {
+//   try {
+//     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeName);
+//     res.send(recipe);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
+
+/**
+ * This path returns a full details of a recipe by its id
+ */
+//localhost:3000/recipes/170000
+router.get("/:recipeId", async (req, res, next) => {
   try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeName);
+    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId,req.session.user_name);
     res.send(recipe);
   } catch (error) {
     next(error);

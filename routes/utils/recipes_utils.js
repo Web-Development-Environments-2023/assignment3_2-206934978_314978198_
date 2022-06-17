@@ -20,7 +20,7 @@ async function getRecipeInformation(recipe_id) {
 
 
 
-async function getRecipeDetails(recipe_id) {
+async function getRecipeDetails(recipe_id,user_name) {
     let recipe_info = await getRecipeInformation(recipe_id);
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
 
@@ -37,48 +37,48 @@ async function getRecipeDetails(recipe_id) {
 
     
     // If there is a connected user - checks if he has watched/saved to favorite the recipe
-    if (!(req.session && req.session.username)) {
-        previewDictionary['watched'] = false;
-        previewDictionary['favorite'] = false;
-    }
-    else {        
-        const users = await DButils.execQuery("SELECT username FROM users");     
+    // if (!(user_name)) {
+    //     previewDictionary['watched'] = false;
+    //     previewDictionary['favorite'] = false;
+    // }
+    // else {        
+    //     const users = await DButils.execQuery("SELECT user_name FROM users");     
 
-        if (users.find((x) => x.username === req.session.username)) 
-        {            
-            const isSavedToMyfavorites = await user_utils.isFavorite(req.session.username, username);
-            if (isSavedToMyfavorites)
-                previewDictionary['favorite'] = true;
-            else
-                previewDictionary['favorite'] = false;
+    //     if (users.find((x) => x.user_name === user_name)) 
+    //     {            
+    //         const isSavedToMyfavorites = await user_utils.isFavorite(req.session.user_name, user_name);
+    //         if (isSavedToMyfavorites)
+    //             previewDictionary['favorite'] = true;
+    //         else
+    //             previewDictionary['favorite'] = false;
 
-            // Checks if the recipe has been watched by the user
-            const isWatched = await user_utils.isWatched(recipe_id, username);
-            if (isWatched){
-                previewDictionary['watched'] = true;
-                var today = new Date();
-                var dd = String(today.getDate()).padStart(2, '0');
-                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-                var yyyy = today.getFullYear();
-                today = mm + '/' + dd + '/' + yyyy;
+    //         // Checks if the recipe has been watched by the user
+    //         const isWatched = await user_utils.isWatched(recipe_id, user_name);
+    //         if (isWatched){
+    //             previewDictionary['watched'] = true;
+    //             var today = new Date();
+    //             var dd = String(today.getDate()).padStart(2, '0');
+    //             var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    //             var yyyy = today.getFullYear();
+    //             today = mm + '/' + dd + '/' + yyyy;
                 
-                await DButils.execQuery(`update watched set (date=${today}) where (rec_id=${recipe_id}, user_name='${req,session.username}')`);
-            }
+    //             await DButils.execQuery(`update watched set (date=${today}) where (rec_id=${recipe_id}, user_name='${req,session.user_name}')`);
+    //         }
                 
-            else {
-                previewDictionary['watched'] = false;
+    //         else {
+    //             previewDictionary['watched'] = false;
 
-                var today = new Date();
-                var dd = String(today.getDate()).padStart(2, '0');
-                var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-                var yyyy = today.getFullYear();
-                today = mm + '/' + dd + '/' + yyyy;
+    //             var today = new Date();
+    //             var dd = String(today.getDate()).padStart(2, '0');
+    //             var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    //             var yyyy = today.getFullYear();
+    //             today = mm + '/' + dd + '/' + yyyy;
 
-                await DButils.execQuery(`insert into watched values (rec_id=${recipe_id}, user_name='${req,session.username}', date=${today})`);
-            }
+    //             await DButils.execQuery(`insert into watched values (rec_id=${recipe_id}, user_name='${req,session.user_name}', date=${today})`);
+    //         }
                 
-        }
-    }
+    //     // }
+    // }
 
     return previewDictionary;
 }
@@ -112,23 +112,23 @@ async function getPreviewRecipes(req, arrRecipesIds)
                 glutenFree: glutenFree,
             }
 
-            if (!(req.session && req.session.username)) {
+            if (!(req.session && req.session.user_name)) {
                 previewDictionary['watched'] = false;
                 previewDictionary['favorite'] = false;
             }
             else {
-            const users = await DButils.execQuery("SELECT username FROM users")
-                if (users.find((x) => x.username === req.session.username)) 
+            const users = await DButils.execQuery("SELECT user_name FROM users")
+                if (users.find((x) => x.user_name === req.session.user_name)) 
                 {
                     //check if this user saved this recipe
-                    const isSavedToMyfavorites = await user_utils.isFavorite(req.session.username, username);
+                    const isSavedToMyfavorites = await user_utils.isFavorite(req.session.user_name, user_name);
                     if (isSavedToMyfavorites) 
                         previewDictionary['favorite'] = true;
                     else
                         previewDictionary['favorite'] = false;
 
                     //check if this user has watched the recipe
-                    const isWatched = await user_utils.isWatched(req.session.username, username);
+                    const isWatched = await user_utils.isWatched(req.session.user_name, user_name);
                     if (isWatched)
                         previewDictionary['watched'] = true;
                     else
@@ -184,23 +184,26 @@ async function getSearchRecipes(req, query, number, cuisine, diet, intolerances)
 
 
 async function threeRandomRecipes(){
-    return await axios.get(`${api_domain}/random`, {
+    const data =  await axios.get(`${api_domain}/random`, {
         params: {
             number: 3,
             apiKey: process.env.spooncular_apiKey
         }
     });
+    return data;
 }
 
 async function getRandomRecipes() {
     let threeRecipes = await threeRandomRecipes();
-    return threeRecipes.data
+    return threeRecipes.data;
 }   
 
 async function getLastThreeRecipes(user_name){
-    const recipes = await DButils.execQuery("SELECT rec_id FROM mydb.watched WHERE user_name='${user_name}' ORDER BY date desc limit 3");
-    return recipes
+    const recipes = await DButils.execQuery(`SELECT rec_id FROM mydb.watched WHERE user_name='${user_name}' ORDER BY date desc limit 3`);
+    return recipes;
 }
+
+
 
 
 exports.getRecipeDetails = getRecipeDetails;

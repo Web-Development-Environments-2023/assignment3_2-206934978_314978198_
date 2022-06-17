@@ -49,6 +49,8 @@ const corsConfig = {
 app.use(cors(corsConfig));
 app.options("*", cors(corsConfig));
 
+console.log(process.env.user);
+
 var port = process.env.PORT || "80"; //local=3000 remote=80
 //#endregion
 const user = require("./routes/user");
@@ -58,11 +60,11 @@ const auth = require("./routes/auth");
 
 //#region cookie middleware
 app.use(function (req, res, next) {
-  if (req.session && req.session.username) {
-    DButils.execQuery("SELECT username FROM mydb.users")
+  if (req.session && req.session.user_name) {
+    DButils.execQuery("SELECT user_name FROM mydb.users")
       .then((users) => {
-        if (users.find((x) => x.username === req.session.username)) {
-          req.username = req.session.username;
+        if (users.find((x) => x.user_name === req.session.user_name)) {
+          req.user_name = req.session.user_name;
         }
         next();
       })
