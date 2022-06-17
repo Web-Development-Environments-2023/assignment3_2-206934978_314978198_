@@ -20,14 +20,6 @@ router.get("/random", async (req, res, next) => {
 
 
 
-
-
-
-
-
-
-
-
 /**
  * This path gets a query and returns few recipies which are ansewring it
  * number - int (5,10,15)
@@ -89,6 +81,19 @@ router.get("/:recipeId", async (req, res, next) => {
   }
 });
 
+
+
+/**
+ * This path returns the full details of a recipe by it's id
+ */
+ router.get("/fullDetailes", async (req, res, next) => {
+  try {
+    const recipe = await recipes_utils.getFullDetailsOfRecipe(req.query.recipeId);
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
 
 
 

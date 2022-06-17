@@ -67,49 +67,22 @@ router.get('/favorites', async (req,res,next) => {
 });
 
 
-// router.post('/myRecipies', async(req, res, next) =>{
-//   try{
-//     //Regular recieps
-//     const name = req.body.name;
-//     const pic = req.body.pic;
-//     const description = req.body.description;
-//     const time_required = req.body.time_required;
-//     const popularity = req.body.popularity;
-//     const vegan = req.body.vegan;
-//     const vegeterian = req.body.vegeterian;
-//     const gluten = req.body.gluten;
-//     const ingredients = req.body.ingredients;
-//     const instruction = req.body.instruction;
-//     const num_of_meals = req.body.num_of_meals;
-//     const user_name = req.session.user_name;
-
-//     //Creating the recipe
-//     const recipe = await user_utils.createRecipes(name, pic, description, time_required, popularity, vegan, vegeterian, gluten, ingredients, instruction, num_of_meals, user_name);
-
-//     res.send("Created successfully");
-
-//   } catch(error){
-//     next(error);
-//   }
-// });
-
-
 router.post('/myRecipies', async(req, res, next) =>{
   try{
     //Regular recieps
-    const image = req.body.image;
+    const imageUrl = req.body.imageUrl;
     const title = req.body.title;
     const readyInMinutes = req.body.readyInMinutes;
     const popularity = req.body.popularity;
     const vegan = req.body.vegan;
     const vegetarian = req.body.vegetarian;
-    const glutenFree = req.body.glutenFree;
+    const gluten_free = req.body.gluten_free;
     const ingredients = req.body.ingredients;
     const instructions = req.body.instructions;
     const servings = req.body.servings;
 
     //Creating the recip
-    const recipe = await user_utils.createRecipes(image, title, readyInMinutes, popularity, vegan, vegeterian, glutenFree, ingredients, instructions, servings);
+    const recipe = await user_utils.createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings);
 
     res.send("Created successfully");
 
@@ -117,6 +90,8 @@ router.post('/myRecipies', async(req, res, next) =>{
     next(error);
   }
 });
+
+
 
 
 /**
@@ -134,27 +109,11 @@ router.post('/myRecipies', async(req, res, next) =>{
 });
 
 
-/**
- * This path returns the recipes that were created by the logged-in user
- */
- router.get('/favorites1', async (req,res,next) => {
-  try{
-    const user_name = req.session.user_name;
-
-    const results = await user_utils.getMyRecipes(user_name);
-
-    res.status(200).send(results);
-  }catch (error) {
-    next(error);
-  }
-
-});
-
 
 /**
  * This path returns the saved family recipes of the logged-in user
  */
-router.get('/family', async (req,res,next) => {
+router.get('/myFamilyRecipies', async (req,res,next) => {
   try {
     const user_name = req.session.user_id;
     const recipes_id = await user_utils.getMyFamilyRecipes(user_name);
@@ -163,10 +122,10 @@ router.get('/family', async (req,res,next) => {
     //arr of recipes ids
     recipes_id.map((element) => arrRecipesIds.push(element.recipe_id)); 
 
-    const results = await recipe_utils.getRecipesPreview(arrRecipesIds);
-    res.status(200).send(results);
-  } catch(error){
-    next(error); 
+    const res = await recipe_utils.getPreviewRecipes(arrRecipesIds);
+    res.status(200).send(res);
+  } catch(err){
+    next(err); 
   }
 });
 

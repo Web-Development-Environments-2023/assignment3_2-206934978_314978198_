@@ -1,35 +1,35 @@
 const DButils = require("./DButils");
 
+/*
+ * This func mark a recipe as a favorite by a logged-in user
+*/
 async function markAsFavorite(user_name, recipe_id){
     await DButils.execQuery(`insert into myfavoriterecipes values (${recipe_id}, '${user_name}')`);
 }
 
+
+/*
+ * This func return the all favorite recipes by the logged-in user
+*/
 async function getFavoriteRecipes(user_name){
     const recipes_id = await DButils.execQuery(`select rec_id from myfavoriterecipes where user_name='${user_name}'`);
     return recipes_id;
 }
 
-// async function createRecipes(recipe_name, pic, description, time_required, popularity, vegan, vegeterian, gluten, ingredients, instruction, num_of_meals, user_name){
-//     let id = await DButils.execQuery(`SELECT COUNT(*) as number FROM regularrecipes`);
-//     id = id[0].number + 1;
-//     await DButils.execQuery(`insert into regularrecipes values (${id},'${pic}', '${description}', ${time_required}, '${popularity}', '${vegan}', '${vegeterian}', '${gluten}', '${ingredients}', '${num_of_meals}', '${instruction}', '${recipe_name}', '${user_name}')`);
-//     // await DButils.execQuery(
-//     //     `INSERT INTO mydb.regularrecipes (id,recpic,descripton,timerequired,popularity,vegan,vegetarian,gluten,ingredientlist,num_of_meals,insructions,recipe_name,user_name) VALUES (${id},'${pic}', '${description}', '${time_required}', '${popularity}', '${vegan}', '${vegeterian}', '${gluten}', '${ingredients}', '${num_of_meals}', '${instruction}', '${recipe_name}', '${user_name}')`
-//     //   );
-// }
 
-
-
-
-async function createRecipes(image, title, readyInMinutes, popularity, vegan, vegeterian, glutenFree, ingredients, instructions, servings){
+/*
+ * This func create a new recipe by the logged-in user
+*/
+async function createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings){
     let id = await DButils.execQuery(`SELECT COUNT(*) as number FROM regularrecipes`);
     id = id[0].number + 1;
-    await DButils.execQuery(`insert into regularrecipes values (${id},'${image}', '${title}', ${readyInMinutes}, ${popularity}, ${vegan}, ${vegeterian}, ${glutenFree}, '${ingredients}', '${instructions}', '${servings},)`);
-    // await DButils.execQuery(
-    //     `INSERT INTO mydb.regularrecipes (id,recpic,descripton,timerequired,popularity,vegan,vegetarian,gluten,ingredientlist,num_of_meals,insructions,recipe_name,user_name) VALUES (${id},'${pic}', '${description}', '${time_required}', '${popularity}', '${vegan}', '${vegeterian}', '${gluten}', '${ingredients}', '${num_of_meals}', '${instruction}', '${recipe_name}', '${user_name}')`
-    //   );
+    await DButils.execQuery(`insert into regularrecipes values (${id},'${imageUrl}', '${title}', ${readyInMinutes}, ${popularity}, ${vegan}, ${vegetarian}, ${gluten_free}, '${ingredients}', '${instructions}', ${servings})`);
 }
 
+
+/*
+ * This func returns if this recipe was watched by a specific user
+*/
 async function isWatched(recipe_id, user_name){
     const count = await DButils.execQuery(`SELECT COUNT(*) FROM watched WHERE (rec_id=${recipe_id}, user_name='${user_name})`);
 
@@ -39,29 +39,31 @@ async function isWatched(recipe_id, user_name){
         return True;
 }
 
+
+/*
+ * This func returns the all recipes of a logged-in user
+*/
 async function getMyRecipes(user_name){
-    let results = [];
+    let res = [];
     let recipes_info = await DButils.execQuery(`SELECT * FROM regularrecipes where user_name='${user_name}' `)
 
     if (recipes_info == []){
-        return results;
+        return res;
     }
     
     const watched_recipes = await DButils.execQuery(`SELECT rec_id FROM watched where user_name='${user_name}' `);
     const favorite_recipes = await DButils.execQuery(`SELECT rec_id FROM myfavoriterecipes where user_name='${user_name}' `);
 
     for (let recipe of recipes_info){
-        let watched_rec = False;
         
-        if (watched_recipes.find((x) => x.recipe_id === recipe['id'])){
+        let watched_rec = False;
+        if (watched_recipes.find((x) => x.recipe_id === recipe['id']))
             watched_rec = True;
-        }
         
         let favorite_rec = False;
-        
-        if (favorite_recipes.find((x) => x.recipe_id === recipe['id'])){
+        if (favorite_recipes.find((x) => x.recipe_id === recipe['id']))
             favorite_rec = True;
-        }   
+
 
         let recipe_dict = {
             name: recipe['recipe_name'],
@@ -75,9 +77,9 @@ async function getMyRecipes(user_name){
             favorite: favorite_rec   
         }
 
-        results.push(recipe_dict);
+        res.push(recipe_dict);
     }
-    return results;
+    return res;
 }
 
 
@@ -85,8 +87,14 @@ async function getMyRecipes(user_name){
  * returns the all recipes ids of my family recipes
 */
 async function getMyFamilyRecipes(user_name){
-    const recipesIds = await DButils.execQuery(`SELECT * from myfamilyrecipes where user_name='${user_name}'`);
-    return recipesIds;
+    try {
+        const recipesIds = await DButils.execQuery(`SELECT * from myfamilyrecipes where user_name='${user_name}'`);
+        return recipesIds;
+    }
+    catch(err){
+        throw { status: 400, message: "Your family has no even an one recipe!" };
+    }
+
 }
 
 
