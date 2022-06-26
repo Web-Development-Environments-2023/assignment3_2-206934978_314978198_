@@ -59,15 +59,16 @@ async function getSearchRecipes(req, query, number, cuisine, diet, intolerances)
     })
 
     const dct = res.data['results'];
-    let resuld_id = "";
+    let result_id = "";
     for(let i = 0; i < Object.keys(dct).length; i++)
     {
         const len = dct.length;
         if (i !=  len - 1)
-            resuld_id += dct[i]['id'] + ", ";
+            result_id += dct[i]['id'] + ", ";
         else
-            resuld_id += dct[i]['id'];
+            result_id += dct[i]['id'];
     }
+    return result_id;
 
 }
 

@@ -26,11 +26,11 @@ router.get("/random", async (req, res, next) => {
  */
  router.get("/search", async (req, res, next) => {
   try {
-    const query = req.query.query;
-    const number = req.query.number;
-    const cuisine = req.query.cuisine;
-    const diet = req.query.diet;
-    const intolerances = req.query.intolerances;
+    const query = req.body.query;
+    const number = req.body.number;
+    const cuisine = req.body.cuisine;
+    const diet = req.body.diet;
+    const intolerances = req.body.intolerances;
 
     const recipes = await recipes_utils.getSearchRecipes(req, query, number, cuisine, diet, intolerances);
     res.send(recipes);
