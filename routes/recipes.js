@@ -26,13 +26,19 @@ router.get("/random", async (req, res, next) => {
  */
  router.get("/search", async (req, res, next) => {
   try {
-    const query = req.body.query;
-    const number = req.body.number;
-    const cuisine = req.body.cuisine;
-    const diet = req.body.diet;
-    const intolerances = req.body.intolerances;
+    const query = req.query.searchQuery
+    const number = req.query.number;
+    const cuisine = req.query.cuisine;
+    const diet = req.query.diet;
+    const intolerances = req.query.intolerances;
 
     const recipes = await recipes_utils.getSearchRecipes(req, query, number, cuisine, diet, intolerances);
+    
+    if (recipes.length == 0){
+      res.send("There is no results!");
+      return;
+    }
+
     res.send(recipes);
   } catch (error) {
     next(error);
@@ -74,7 +80,7 @@ router.get("/watched", async (req, res, next) => {
 //localhost:3000/recipes/170000
 router.get("/:recipeId", async (req, res, next) => {
   try {
-    const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId,req.session.user_name);
+    const recipe = await recipes_utils.getRecipeDetails(req.query.id);
     res.send(recipe);
   } catch (error) {
     next(error);
