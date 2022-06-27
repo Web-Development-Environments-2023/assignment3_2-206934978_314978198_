@@ -75,6 +75,22 @@ router.get("/watched", async (req, res, next) => {
 // });
 
 /**
+ * This path returns the full details of a recipe by it's id
+ */
+ router.get("/fullDetailes", async (req, res, next) => {
+  try {
+    const recipe = await recipes_utils.getFullDetailsOfRecipe(req.query.recipeid);
+    if (req.session && req.session.user_name){
+      recipes_utils.postLastRecipe(req.session.user_name, recipe.id);
+    }
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
+
+
+/**
  * This path returns a full details of a recipe by its id
  */
 //localhost:3000/recipes/170000
@@ -86,21 +102,6 @@ router.get("/:recipeId", async (req, res, next) => {
     next(error);
   }
 });
-
-
-
-/**
- * This path returns the full details of a recipe by it's id
- */
- router.get("/fullDetailes", async (req, res, next) => {
-  try {
-    const recipe = await recipes_utils.getFullDetailsOfRecipe(req.query.recipeId);
-    res.send(recipe);
-  } catch (error) {
-    next(error);
-  }
-});
-
 
 
 

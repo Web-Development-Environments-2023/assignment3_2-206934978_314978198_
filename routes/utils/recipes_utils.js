@@ -18,13 +18,20 @@ async function getRecipeInformation(recipe_id) {
     });
 }
 
+async function getRecipeInstructions(recipe_id) {
+    return await axios.get(`${api_domain}/${recipe_id}/analyzedInstructions`, {
+        params: {
+            apiKey: process.env.spooncular_apiKey
+        }
+    });
+}
 
 /*
  * This func returns a details of a recipe by it's id
 */
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, gluten_free } = recipe_info.data;
+    let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
 
     return {
         id: id,
@@ -34,7 +41,7 @@ async function getRecipeDetails(recipe_id) {
         popularity: aggregateLikes,
         vegan: vegan,
         vegetarian: vegetarian,
-        gluten_free: gluten_free,
+        gluten_free: glutenFree,
     };
 
 }
@@ -101,27 +108,33 @@ async function getLastThreeRecipes(user_name){
     return recipes;
 }
 
+/*
+ * This func addes the last recipe were watched by a specific user
+*/
+async function postLastRecipe(user_name, recipe_id){
+    await DButils.execQuery(`insert into mydb.watched values(${recipe_id}, ${user_name}, NOW())`);
+}
 
 /*
  * This func returns the full details of a recipe by it's id
 */
 async function getFullDetailsOfRecipe(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
-    let { id, imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings } = recipe_info.data;
-    ext_Ingredients = ext_Ingredients.map((exIng) => ({name:exIng.name, amount: exIng.amount, unit:exIng.unit}))
-    analyze_Instructions = analyzedInstructions.map((anInstr) => ({name:anInstr.name, steps: (anInstr.steps).map((instep)=> ({number:instep.number, step:instep.step}))}))
+    let { id, title, image, readyInMinutes, aggregateLikes, vegan, vegetarian, glutenFree, extendedIngredients, servings } = recipe_info.data;
+    let instructions = await getRecipeInstructions(recipe_id);
+    let analyze_Instructions = instructions.data;
     
     const fullDetails = {
         id: id,
-        imageUrl: imageUrl,
+        imageUrl: image,
         title: title,
         readyInMinutes: readyInMinutes,
-        popularity: popularity,
+        popularity: aggregateLikes,
         vegan: vegan,
         vegetarian: vegetarian,
-        gluten_free: gluten_free,
-        ingredients: ingredients,
-        instructions: instructions,
+        gluten_free: glutenFree,
+        ingredients: extendedIngredients,
+        analyze_Instructions: analyze_Instructions,
         servings: servings,
     }
 
@@ -136,3 +149,4 @@ exports.getSearchRecipes = getSearchRecipes;
 exports.getRandomRecipes = getRandomRecipes;
 exports.getLastThreeRecipes = getLastThreeRecipes;
 exports.getFullDetailsOfRecipe = getFullDetailsOfRecipe;
+exports.postLastRecipe = postLastRecipe;
