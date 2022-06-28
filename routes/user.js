@@ -20,6 +20,30 @@ router.use(async function (req, res, next) {
   }
 });
 
+router.post('/myRecipies', async(req, res, next) =>{
+  try{
+    //Regular recieps
+    const imageUrl = req.body.imageUrl;
+    const title = req.body.title;
+    const readyInMinutes = req.body.readyInMinutes;
+    const popularity = req.body.popularity;
+    const vegan = req.body.vegan;
+    const vegetarian = req.body.vegetarian;
+    const gluten_free = req.body.gluten_free;
+    const ingredients = req.body.ingredients;
+    const instructions = req.body.instructions;
+    const servings = req.body.servings;
+    const user_name = req.session.user_name;
+
+    //Creating the recip
+    const recipe = await user_utils.createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings, user_name);
+
+    res.send("Created successfully");
+
+  } catch(error){
+    next(error);
+  }
+});
 
 /**
  * This path gets body with recipeId and save this recipe in the favorites list of the logged-in user
@@ -65,34 +89,6 @@ router.get('/favorites', async (req,res,next) => {
     next(error); 
   }
 });
-
-
-router.post('/myRecipies', async(req, res, next) =>{
-  try{
-    //Regular recieps
-    const imageUrl = req.body.imageUrl;
-    const title = req.body.title;
-    const readyInMinutes = req.body.readyInMinutes;
-    const popularity = req.body.popularity;
-    const vegan = req.body.vegan;
-    const vegetarian = req.body.vegetarian;
-    const gluten_free = req.body.gluten_free;
-    const ingredients = req.body.ingredients;
-    const instructions = req.body.instructions;
-    const servings = req.body.servings;
-
-    //Creating the recip
-    const recipe = await user_utils.createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings);
-
-    res.send("Created successfully");
-
-  } catch(error){
-    next(error);
-  }
-});
-
-
-
 
 /**
  * This path returns the recipes that were created by the logged-in user

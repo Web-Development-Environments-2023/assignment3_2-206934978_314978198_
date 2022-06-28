@@ -64,6 +64,8 @@ router.post("/Login", async (req, res, next) => {
     // Set cookie
     req.session.user_name = user.user_name;
 
+    console.log(req.session.user_name);
+
 
     // return cookie
     res.status(200).send({ message: "login succeeded", success: true });
