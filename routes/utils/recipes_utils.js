@@ -112,7 +112,7 @@ async function getLastThreeRecipes(user_name){
  * This func addes the last recipe were watched by a specific user
 */
 async function postLastRecipe(user_name, recipe_id){
-    await DButils.execQuery(`insert into mydb.watched values(${recipe_id}, ${user_name}, NOW())`);
+    await DButils.execQuery(`insert into mydb.watched values(${recipe_id}, '${user_name}', NOW())`);
 }
 
 /*

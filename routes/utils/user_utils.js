@@ -23,7 +23,13 @@ async function getFavoriteRecipes(user_name){
 async function createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings, user_name){
     let id = await DButils.execQuery(`SELECT COUNT(*) as number FROM mydb.regularrecipes`);
     id = id[0].number + 1;
-    await DButils.execQuery(`insert into mydb.regularrecipes values (${id},'${imageUrl}', '${title}', ${readyInMinutes}, ${popularity}, ${vegan}, ${vegetarian}, ${gluten_free}, '${ingredients}', '${instructions}', ${servings}, '${user_name}')`);
+    await DButils.execQuery(`insert into mydb.regularrecipes values (${id},'${imageUrl}', '${title}', ${readyInMinutes}, ${popularity}, ${vegan}, ${vegetarian}, ${gluten_free}, ${servings}, '${user_name}')`);
+    for (let i = 0; i < ingredients.length; i++){
+        await DButils.execQuery(`insert into mydb.ingredientsrecipes values (${id}, '${ingredients[i]}')`);
+    }
+    for (let i = 0; i < instructions.length; i++){
+        await DButils.execQuery(`insert into mydb.instructionrecipes values (${id}, ${i}, '${ingredients[i]}')`);
+    }
 }
 
 
