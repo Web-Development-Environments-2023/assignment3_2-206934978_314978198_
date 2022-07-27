@@ -141,8 +141,15 @@ async function getFullDetailsOfRecipe(recipe_id) {
     return fullDetails;
 }
 
+async function getPreviewRecipes(res){
+    let response;
 
+    for (let i = 0; i< res.length; i++){
+        response.push(await getRecipeDetails(res[i].id));
+    }
 
+    return response;
+}
 
 exports.getRecipeDetails = getRecipeDetails;
 exports.getSearchRecipes = getSearchRecipes;
@@ -150,3 +157,4 @@ exports.getRandomRecipes = getRandomRecipes;
 exports.getLastThreeRecipes = getLastThreeRecipes;
 exports.getFullDetailsOfRecipe = getFullDetailsOfRecipe;
 exports.postLastRecipe = postLastRecipe;
+exports.getPreviewRecipes = getPreviewRecipes;

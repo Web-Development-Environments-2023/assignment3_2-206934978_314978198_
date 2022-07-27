@@ -16,6 +16,16 @@ async function getFavoriteRecipes(user_name){
     return recipes_id;
 }
 
+/*
+ * This func return the true if the recipe (recipe_id) ia a favorite recipe for user_name and false if not
+*/
+async function isFavoriteRecipe(user_name, recipe_id){
+    const count_favorites = await DButils.execQuery(`SELECT count(*) AS amount FROM myfavoriterecipes WHERE user_name='${user_name}' AND recipe_id='${recipe_id}'`);
+    if (count_favorites[0].amount >= 1)
+        return true;
+    else
+        return false;
+}
 
 /*
  * This func create a new recipe by the logged-in user
@@ -113,4 +123,5 @@ exports.createRecipes = createRecipes;
 exports.getMyRecipes = getMyRecipes;
 exports.isWatched = isWatched;
 exports.getMyFamilyRecipes = getMyFamilyRecipes;
+exports.isFavoriteRecipe = isFavoriteRecipe;
 

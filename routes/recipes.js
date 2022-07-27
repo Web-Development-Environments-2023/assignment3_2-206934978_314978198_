@@ -45,7 +45,6 @@ router.get("/random", async (req, res, next) => {
   }
 });
 
-
 /**
  * This path returns a full details of the 3 latest recipes
  */

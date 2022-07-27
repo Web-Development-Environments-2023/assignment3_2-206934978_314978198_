@@ -51,10 +51,13 @@ router.post('/myRecipies', async(req, res, next) =>{
 router.post('/favorites', async (req,res,next) => {
   try{
     const user_name = req.session.user_name;
+    console.log(req.body.rec_id)
     const recipe_id = req.body.rec_id;
-    await user_utils.markAsFavorite(user_name,recipe_id);
+    
+    await user_utils.markAsFavorite(user_name, recipe_id);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
+      console.log("here");
     next(error);
   }
 })
@@ -87,6 +90,15 @@ router.get('/favorites', async (req,res,next) => {
     }    
   } catch(error){
     next(error); 
+  }
+});
+
+router.get('/isAFavorites', async (req, res, next)=>{
+  try{
+    const result = await user_utils.isFavoriteRecipe(req.session.user_name, req.query.recipeId);
+    res.status(200).send(result);
+  } catch(error){
+    next(error);
   }
 });
 
