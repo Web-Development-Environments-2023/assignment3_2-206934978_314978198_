@@ -38,7 +38,7 @@ async function getRecipeDetails(recipe_id) {
         title: title,
         readyInMinutes: readyInMinutes,
         image: image,
-        popularity: aggregateLikes,
+        aggregateLikes: aggregateLikes,
         vegan: vegan,
         vegetarian: vegetarian,
         gluten_free: glutenFree,
@@ -126,10 +126,10 @@ async function getFullDetailsOfRecipe(recipe_id) {
     
     const fullDetails = {
         id: id,
-        imageUrl: image,
+        image: image,
         title: title,
         readyInMinutes: readyInMinutes,
-        popularity: aggregateLikes,
+        aggregateLikes: aggregateLikes,
         vegan: vegan,
         vegetarian: vegetarian,
         gluten_free: glutenFree,
@@ -151,6 +151,16 @@ async function getPreviewRecipes(res){
     return response;
 }
 
+async function recipe_wached_by_user(user_name, recipe_id){
+    const counter = await DButils.execQuery(`SELECT count(*) AS count FROM watched WHERE user_name='${user_name}' AND rec_id='${recipe_id}'`);
+    if(counter[0].count >= 1){
+        return true;
+    }
+    else{
+        return false;
+    }
+}
+
 exports.getRecipeDetails = getRecipeDetails;
 exports.getSearchRecipes = getSearchRecipes;
 exports.getRandomRecipes = getRandomRecipes;
@@ -158,3 +168,4 @@ exports.getLastThreeRecipes = getLastThreeRecipes;
 exports.getFullDetailsOfRecipe = getFullDetailsOfRecipe;
 exports.postLastRecipe = postLastRecipe;
 exports.getPreviewRecipes = getPreviewRecipes;
+exports.recipe_wached_by_user = recipe_wached_by_user;

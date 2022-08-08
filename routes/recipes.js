@@ -52,7 +52,28 @@ router.get("/random", async (req, res, next) => {
 router.get("/watched", async (req, res, next) => {
   try {
     const recipes = await recipes_utils.getLastThreeRecipes(req.session.user_name);
-    res.send(recipes);
+    console.log(recipes);
+    let results = [];
+    for (let i = 0; i < recipes.length; i++){
+      console.log(recipes[i].rec_id);
+      results[i] = await recipes_utils.getFullDetailsOfRecipe(recipes[i].rec_id);
+    }
+    res.send(results);
+  } catch (error) {
+    next(error);
+  }
+});
+
+/**
+ * This path returns the recipes if watched by the user
+ */
+//localhost:3000/recipes/170000
+router.get("/isWatched", async (req, res, next) => {
+  try {
+    if (req.session.user_name){
+      const recipe = await recipes_utils.recipe_wached_by_user(req.session.user_name, req.query.recipeId);
+      res.send(recipe);
+    }
   } catch (error) {
     next(error);
   }
