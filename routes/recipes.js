@@ -109,6 +109,20 @@ router.get("/isWatched", async (req, res, next) => {
   }
 });
 
+/**
+ * This path returns the full details of my recipe by it's id
+ */
+ router.get("/myFullDetailes", async (req, res, next) => {
+  try {
+    const recipe = await recipes_utils.getMyFullDetailsOfRecipe(req.query.recipeid);
+    if (req.session && req.session.user_name){
+      recipes_utils.postLastRecipe(req.session.user_name, recipe.id);
+    }
+    res.send(recipe);
+  } catch (error) {
+    next(error);
+  }
+});
 
 /**
  * This path returns a full details of a recipe by its id

@@ -2,7 +2,7 @@ var express = require("express");
 var router = express.Router();
 const DButils = require("./utils/DButils");
 const user_utils = require("./utils/user_utils");
-const recipe_utils = require("./utils/recipes_utils");
+const recipes_utils = require("./utils/recipes_utils");
 
 /**
  * Authenticate all incoming requests by middleware
@@ -68,26 +68,15 @@ router.post('/favorites', async (req,res,next) => {
 router.get('/favorites', async (req,res,next) => {
   try{
     const user_name = req.session.user_name;
-    //Checking if user is connected
-    if (user_name != null && req.session){
+    
+    //Gets all the user's favorite recipes' ids
+    const recipes_id = await user_utils.getFavoriteRecipes(user_name);
 
-      const all_users = await DButils.execQuery("SELECT user_name FROM mydb.users");
-      
-      if (all_users.find((x) => x.user_name === req.session.user_name)){
-        //Gets all the "favorite"'s recipes' ids of the connected uder 
-        const recipes_id = await user_utils.getFavoriteRecipes(user_name);
-        let recipes_id_array = [];
-        
-        //Extracts into an array
-        recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
-        
-        const results = await recipe_utils.getPreviewRecipes(req, recipes_id_array);
-        res.status(200).send(results);
-      }      
-    }
-    else{
-      res.status(201).send("User is not connected");
-    }    
+    //Gets all the user's favorite recipes' details 
+    const results = await recipes_utils.getPreviewRecipes(recipes_id);
+    
+    res.status(200).send(results);
+  
   } catch(error){
     next(error); 
   }
@@ -105,9 +94,10 @@ router.get('/isAFavorites', async (req, res, next)=>{
 /**
  * This path returns the recipes that were created by the logged-in user
  */
- router.get('/myRecipies', async (req,res,next) => {
+ router.get('/myRecipes', async (req,res,next) => {
   try{
     // Gets the preview of all the recipes that were saved for that user
+    console.log("in get/myRecipes, the user_name is: " + req.session.user_name);
     const results = await user_utils.getMyRecipes(req.session.user_name);
     res.status(200).send(results);
   } catch(error){
@@ -130,7 +120,7 @@ router.get('/myFamilyRecipies', async (req,res,next) => {
     //arr of recipes ids
     recipes_id.map((element) => arrRecipesIds.push(element.recipe_id)); 
 
-    const res = await recipe_utils.getPreviewRecipes(arrRecipesIds);
+    const res = await recipes_utils.getPreviewRecipes(arrRecipesIds);
     res.status(200).send(res);
   } catch(err){
     next(err); 

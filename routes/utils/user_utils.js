@@ -12,7 +12,8 @@ async function markAsFavorite(user_name, recipe_id){
  * This func return the all favorite recipes by the logged-in user
 */
 async function getFavoriteRecipes(user_name){
-    const recipes_id = await DButils.execQuery(`select rec_id from myfavoriterecipes where user_name='${user_name}'`);
+    console.log("In getFavoriteRecipes");
+    const recipes_id = await DButils.execQuery(`select recipe_id from myfavoriterecipes where user_name='${user_name}'`);
     return recipes_id;
 }
 
@@ -61,36 +62,23 @@ async function isWatched(recipe_id, user_name){
 */
 async function getMyRecipes(user_name){
     let res = [];
-    let recipes_info = await DButils.execQuery(`SELECT * FROM regularrecipes where user_name='${user_name}' `)
+    let recipes_info = await DButils.execQuery(`SELECT * FROM regularrecipes where user_name='${user_name}'`);
 
     if (recipes_info == []){
         return res;
     }
     
-    const watched_recipes = await DButils.execQuery(`SELECT rec_id FROM watched where user_name='${user_name}' `);
-    const favorite_recipes = await DButils.execQuery(`SELECT rec_id FROM myfavoriterecipes where user_name='${user_name}' `);
-
     for (let recipe of recipes_info){
-        
-        let watched_rec = False;
-        if (watched_recipes.find((x) => x.recipe_id === recipe['id']))
-            watched_rec = True;
-        
-        let favorite_rec = False;
-        if (favorite_recipes.find((x) => x.recipe_id === recipe['id']))
-            favorite_rec = True;
-
 
         let recipe_dict = {
-            name: recipe['recipe_name'],
-            pic: recipe['recpic'],
-            popularity: recipe['popularity'],
+            id: recipe['id'],
+            title: recipe['title'],
+            image: recipe['imageUrl'],
+            aggregateLikes: recipe['popularity'],
             vegan: recipe['vegan'],
-            vegeterian: recipe['vegeterian'],
-            gluten: recipe['gluten'],
-            time_required: recipe['time_required'],
-            watched: watched_rec,
-            favorite: favorite_rec   
+            vegetarian: recipe['vegetarian'],
+            gluten_free: recipe['glutenFree'],
+            readyInMinutes: recipe['readyInMinutes'],
         }
 
         res.push(recipe_dict);
@@ -112,9 +100,6 @@ async function getMyFamilyRecipes(user_name){
     }
 
 }
-
-
-
 
 
 exports.markAsFavorite = markAsFavorite;

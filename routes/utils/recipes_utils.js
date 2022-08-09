@@ -6,7 +6,7 @@ const DButils = require("./DButils");
 
 
 /**
- * Get recipes list from spooncular response and extract the relevant recipe data for preview
+ * Get recipe details from spooncular response and extract the relevant recipe data for preview
  * @param {*} recipes_info 
  */
 async function getRecipeInformation(recipe_id) {
@@ -26,8 +26,9 @@ async function getRecipeInstructions(recipe_id) {
     });
 }
 
+
 /*
- * This func returns a details of a recipe by it's id
+ * This func returns the preview details of a recipe by it's id
 */
 async function getRecipeDetails(recipe_id) {
     let recipe_info = await getRecipeInformation(recipe_id);
@@ -45,7 +46,6 @@ async function getRecipeDetails(recipe_id) {
     };
 
 }
-
 
 /*
  * This func returns recipes by a query and it's amount of results
@@ -141,11 +141,53 @@ async function getFullDetailsOfRecipe(recipe_id) {
     return fullDetails;
 }
 
-async function getPreviewRecipes(res){
-    let response;
 
-    for (let i = 0; i< res.length; i++){
-        response.push(await getRecipeDetails(res[i].id));
+/*
+ * This func returns the full details of my recipe by it's id
+*/
+async function getMyFullDetailsOfRecipe(recipe_id) {
+    let recipe_info = await DButils.execQuery(`SELECT * FROM mydb.regularrecipes WHERE id='${recipe_id}'`);
+    let { id, title, imageUrl, readyInMinutes, popularity, vegan, vegetarian, glutenFree, servings } = recipe_info[0];
+    
+    let instructions = await DButils.execQuery(`SELECT * FROM instructionrecipes WHERE recipe_id='${recipe_id}'`);
+    let return_instructions = [];
+
+    for (let i = 0; i < instructions.length; i++ ){
+        return_instructions.push({number: instructions[i].instruction_id, step: instructions[i].instruction_data});
+    }
+    
+    let ingredients = await DButils.execQuery(`SELECT * FROM ingredientsrecipes WHERE recipe_id='${recipe_id}'`);
+    let return_ingredients = [];
+
+    for (let i = 0; i < ingredients.length; i++ ){
+        return_ingredients.push({number: i, original: ingredients[i].ingredient_name});
+    }
+    
+    const fullDetails = {
+        id: id,
+        image: imageUrl,
+        title: title,
+        readyInMinutes: readyInMinutes,
+        aggregateLikes: popularity,
+        vegan: vegan,
+        vegetarian: vegetarian,
+        glutenFree: glutenFree,
+        ingredients: return_ingredients,
+        instructions: return_instructions,
+        servings: servings,
+    }
+
+    return fullDetails;
+}
+
+/*
+ * This func returns the preview details of dictionery that contains recipes' ids
+*/
+async function getPreviewRecipes(res){
+    let response = [];
+
+    for (let i = 0; i < res.length; i++){
+        response[i] = await getRecipeDetails(res[i].recipe_id);
     }
 
     return response;
@@ -166,6 +208,7 @@ exports.getSearchRecipes = getSearchRecipes;
 exports.getRandomRecipes = getRandomRecipes;
 exports.getLastThreeRecipes = getLastThreeRecipes;
 exports.getFullDetailsOfRecipe = getFullDetailsOfRecipe;
+exports.getMyFullDetailsOfRecipe = getMyFullDetailsOfRecipe;
 exports.postLastRecipe = postLastRecipe;
 exports.getPreviewRecipes = getPreviewRecipes;
 exports.recipe_wached_by_user = recipe_wached_by_user;
