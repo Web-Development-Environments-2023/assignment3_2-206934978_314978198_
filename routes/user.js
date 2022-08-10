@@ -20,25 +20,31 @@ router.use(async function (req, res, next) {
   }
 });
 
-router.post('/myRecipies', async(req, res, next) =>{
+router.post('/myRecipes', async(req, res, next) =>{
   try{
     //Regular recieps
-    const imageUrl = req.body.imageUrl;
+    const imageUrl = req.body.image;
     const title = req.body.title;
     const readyInMinutes = req.body.readyInMinutes;
     const popularity = req.body.popularity;
     const vegan = req.body.vegan;
     const vegetarian = req.body.vegetarian;
     const gluten_free = req.body.gluten_free;
-    const ingredients = req.body.ingredients;
+    const ingredients = req.body.ingrediants;
     const instructions = req.body.instructions;
     const servings = req.body.servings;
     const user_name = req.session.user_name;
 
-    //Creating the recip
-    const recipe = await user_utils.createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings, user_name);
+    console.log(req.body.ingrediants);
+    console.log(ingredients);
+    console.log(req.body.instructions);
+    console.log(instructions);
+    
 
-    res.send("Created successfully");
+    //Creating the recip
+    await user_utils.createRecipes(imageUrl, title, readyInMinutes, popularity, vegan, vegetarian, gluten_free, ingredients, instructions, servings, user_name);
+
+    res.status(200).send("Created successfully");
 
   } catch(error){
     next(error);
