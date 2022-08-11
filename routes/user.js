@@ -112,6 +112,14 @@ router.get('/isAFavorites', async (req, res, next)=>{
 
 });
 
+// router.get('/lastSearch', async (req,res,next) => {
+//   try{
+//     console.log(req.session);
+//   }catch (err){
+//     next(err);
+//   }
+// });
+
 
 
 /**

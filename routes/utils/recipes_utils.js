@@ -50,7 +50,7 @@ async function getRecipeDetails(recipe_id) {
 /*
  * This func returns recipes by a query and it's amount of results
 */
-async function getSearchRecipes(req, query, number, cuisine, diet, intolerances) {
+async function getSearchRecipes(query, number, cuisine, diet, intolerances) {
     let res = await axios.get(`${api_domain}/complexSearch`,
     {
         params: {
@@ -63,18 +63,11 @@ async function getSearchRecipes(req, query, number, cuisine, diet, intolerances)
             instructionsRequired: true,
             addRecipeInformation: true,
         },
-    })
+    });
 
-    const dct = res.data['results'];
-    let result_id = [];
-    const len = dct.length;
+    res = getPreviewRecipes(res.data.results);
 
-    for(let i = 0; i < Object.keys(dct).length; i++)
-    {    
-        result_id[i] = dct[i]['id'];
-    }
-    
-    return result_id;
+    return res;
 }
 
 /*
@@ -187,7 +180,7 @@ async function getPreviewRecipes(res){
     let response = [];
 
     for (let i = 0; i < res.length; i++){
-        response[i] = await getRecipeDetails(res[i].recipe_id);
+        response[i] = await getRecipeDetails(res[i].id);
     }
 
     return response;
