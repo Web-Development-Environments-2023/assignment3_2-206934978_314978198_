@@ -51,24 +51,26 @@ async function getRecipeDetails(recipe_id) {
  * This func returns recipes by a query and it's amount of results
 */
 async function getSearchRecipes(query, number, cuisine, diet, intolerances) {
-    let res = await axios.get(`${api_domain}/complexSearch`,
-    {
-        params: {
-            apiKey: process.env.spooncular_apiKey,
-            query: query, 
-            number: number,
-            cuisine: cuisine, 
-            diet: diet,
-            intolerances: intolerances,
-            instructionsRequired: true,
-            addRecipeInformation: true,
-        },
-    });
-
-    res = getPreviewRecipes(res.data.results);
-
-    return res;
+    try {
+        let res = await axios.get(`${api_domain}/complexSearch`,{
+            params: {
+                apiKey: process.env.spooncular_apiKey,
+                query: query, 
+                number: number,
+                cuisine: cuisine, 
+                diet: diet,
+                intolerance: intolerances,
+                fillIngredients: true,
+                addRecipeInformation: true,
+            }
+        });
+        res = await getPreviewRecipes(res.data.results);
+        return res;
+    } catch(error){
+        console.log(error); 
+    }
 }
+
 
 /*
  * This func returns three random recipes
@@ -180,11 +182,16 @@ async function getPreviewRecipes(res){
     let response = [];
 
     for (let i = 0; i < res.length; i++){
-        response[i] = await getRecipeDetails(res[i].id);
+        let recipeId = res[i].id == undefined ? res[i].recipe_id : res[i].id;
+        if (recipeId == undefined) {
+            recipeId = res[i];
+        }
+        response[i] = await getRecipeDetails(recipeId);
     }
 
     return response;
 }
+
 
 async function recipe_wached_by_user(user_name, recipe_id){
     const counter = await DButils.execQuery(`SELECT count(*) AS count FROM watched WHERE user_name='${user_name}' AND rec_id='${recipe_id}'`);

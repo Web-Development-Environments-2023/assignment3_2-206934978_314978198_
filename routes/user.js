@@ -78,8 +78,10 @@ router.get('/favorites', async (req,res,next) => {
     //Gets all the user's favorite recipes' ids
     const recipes_id = await user_utils.getFavoriteRecipes(user_name);
 
+    let arr_rec_id = [];
+    recipes_id.map((elem) => arr_rec_id.push(elem.recipe_id));
     //Gets all the user's favorite recipes' details 
-    const results = await recipes_utils.getPreviewRecipes(recipes_id);
+    const results = await recipes_utils.getPreviewRecipes(arr_rec_id);
     
     res.status(200).send(results);
   
@@ -127,15 +129,32 @@ router.get('/isAFavorites', async (req, res, next)=>{
  */
 router.get('/myFamilyRecipies', async (req,res,next) => {
   try {
-    const user_name = req.session.user_id;
-    const recipes_id = await user_utils.getMyFamilyRecipes(user_name);
+    const user_name = req.session.user_name;
+    let recipes = await user_utils.getMyFamilyRecipes(user_name);
 
-    let arrRecipesIds = [];
-    //arr of recipes ids
-    recipes_id.map((element) => arrRecipesIds.push(element.recipe_id)); 
+    // let arrRecipesIds = [];
+    // //arr of recipes ids
+    // recipes_id.map((element) => arrRecipesIds.push(element.recipe_id)); 
 
-    const res = await recipes_utils.getPreviewRecipes(arrRecipesIds);
-    res.status(200).send(res);
+    let result = [];
+
+    for (let i = 0; i < recipes.length; i++){
+        // let recipeId = res[i].id == undefined ? res[i].recipe_id : res[i].id;
+        result[i] = {
+          id: recipes[i].recipe_id,
+          title: recipes[i].title,
+          readyInMinutes: recipes[i].when_cooked,
+          image: recipes[i].imageUrl,
+          aggregateLikes: recipes[i].aggregateLikes,
+          vegan: recipes[i].vegan,
+          vegetarian: recipes[i].vegetarian,
+          gluten_free: recipes[i].gluten_free,
+      };
+  
+    }
+    
+    // let result = await recipes_utils.getPreviewRecipes(arrRecipesIds);
+    res.status(200).send(result);
   } catch(err){
     next(err); 
   }

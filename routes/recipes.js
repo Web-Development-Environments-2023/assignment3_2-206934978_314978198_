@@ -30,14 +30,18 @@ router.get("/random", async (req, res, next) => {
     const number = parseInt(req.query.number);
     const cuisine = req.query.cuisine;
     const diet = req.query.diet;
-    const intolerances = req.query.intolerances;
+    let intolerances = req.query.intolerances;
 
     //Maybe Not Needed!!!!!!!!!!!
     if (req.session && req.session.user_name){
       req.session.last_search = query;
     }
 
-    const recipes = await recipes_utils.getSearchRecipes(query, number, cuisine, diet, intolerances);
+    if (intolerances == 'undefined'){
+      intolerances = '';
+    }
+
+    let recipes = await recipes_utils.getSearchRecipes(query, number, cuisine, diet, intolerances);
     
     if (recipes.length == 0){
       res.send("There is no results!");
