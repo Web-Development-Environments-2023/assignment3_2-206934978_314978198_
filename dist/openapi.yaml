@@ -65,18 +65,18 @@ paths:
                 example: session=Yuvi
         "401":
           description: Username or password incorrect
-  # /Logout:
-  #   post:
-  #     tags:
-  #     - auth
-  #     summary: A registered and connected user is logout from the server
-  #     description: A JSON object contains an exist username
-  #     requestBody:
-  #       description: Inventory item to add
-  #       required: true
-  #     responses:
-  #       "201":
-  #         description: The user's logout was succeeded
+  /Logout:
+    post:
+      tags:
+      - auth
+      summary: A registered and connected user is logout from the server
+      description: A JSON object contains an exist username
+      requestBody:
+        description: Inventory item to add
+        required: true
+      responses:
+        "201":
+          description: The user's logout was succeeded
   /user/favorites:
     get:
       tags:
